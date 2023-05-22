@@ -61,7 +61,6 @@ export default {
     },
     allData(){
       this.queryParams.typeId = this.ids;
-      console.log("请求参数："+this.ids)
       allData(this.queryParams).then(response => {
         this.rules = response.data;
       });

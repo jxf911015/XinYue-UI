@@ -8,7 +8,14 @@ export function listPicture(query) {
     params: query
   })
 }
-
+// 查询图片库列表
+export function getAlbumList(query) {
+  return request({
+    url: '/system/picture/list',
+    method: 'get',
+    params: query
+  })
+}
 // 查询图片库详细
 export function getPicture(id) {
   return request({
@@ -43,7 +50,7 @@ export function delPicture(id) {
   })
 }
 
-// 删除图片库
+//
 export function uploadPicture(data) {
   return request({
     url: '/common/upload',

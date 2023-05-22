@@ -10,10 +10,10 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="类型" prop="type">
-        <el-select v-model="queryParams.type" placeholder="请选择类型" clearable size="small">
+      <el-form-item label="目标类型" prop="targetType">
+        <el-select v-model="queryParams.targetType" placeholder="请选择目标类型" clearable size="small">
           <el-option
-            v-for="dict in dict.type.banner_type"
+            v-for="dict in dict.type.banner_target_type"
             :key="dict.value"
             :label="dict.label"
             :value="dict.value"
@@ -34,7 +34,7 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          v-hasPermi="['system:banner:add']"
+          v-hasPermi="['system:link:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -45,7 +45,7 @@
           size="mini"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['system:banner:edit']"
+          v-hasPermi="['system:link:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -56,7 +56,7 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['system:banner:remove']"
+          v-hasPermi="['system:link:remove']"
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -66,43 +66,27 @@
           icon="el-icon-download"
           size="mini"
           @click="handleExport"
-          v-hasPermi="['system:banner:export']"
+          v-hasPermi="['system:link:export']"
         >导出</el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="bannerList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="linkList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
+      <el-table-column label="id" align="center" prop="id" />
       <el-table-column label="名称" align="center" prop="name" />
-      <el-table-column label="图片" align="center" prop="imgUrl" >
-        <template slot-scope="scope">
-          <el-image :src="scope.row.imgUrl" style="width: 100px; height: 60px">
-            <div slot="placeholder" class="image-slot">
-              加载中<span class="dot">...</span>
-            </div>
-          </el-image>
-        </template>
-      </el-table-column>
-      <el-table-column label="类型" align="center" prop="type">
-        <template slot-scope="scope">
-          <dict-tag :options="dict.type.banner_type" :value="scope.row.type"/>
-        </template>
-      </el-table-column>
-      <el-table-column label="目标链接" align="center" prop="targetType">
+      <el-table-column label="目标类型" align="center" prop="targetType">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.banner_target_type" :value="scope.row.targetType"/>
         </template>
       </el-table-column>
-      <el-table-column label="资源链接" align="center" prop="targetType">
-
-      </el-table-column>
-      <el-table-column label="是否展示" align="center" prop="isShow">
+      <el-table-column label="链路方向" align="center" prop="type">
         <template slot-scope="scope">
-          <dict-tag :options="dict.type.sys_article_yes_no" :value="scope.row.isShow"/>
+          <dict-tag :options="dict.type.sys_link_type" :value="scope.row.type"/>
         </template>
       </el-table-column>
-<!--      <el-table-column label="备注" align="center" prop="remark" />-->
+      <el-table-column label="链接地址" align="center" prop="links" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -110,14 +94,14 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['system:banner:edit']"
+            v-hasPermi="['system:link:edit']"
           >修改</el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['system:banner:remove']"
+            v-hasPermi="['system:link:remove']"
           >删除</el-button>
         </template>
       </el-table-column>
@@ -131,50 +115,34 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改banner列对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="50%" append-to-body>
+    <!-- 添加或修改链接管理对话框 -->
+    <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入名称" />
         </el-form-item>
-        <el-form-item label="主图">
-          <image-upload v-model="form.imgId"/>
-        </el-form-item>
-        <el-form-item label="类型" prop="type">
-          <el-select v-model="form.type" placeholder="请选择类型">
-            <el-option
-              v-for="dict in dict.type.banner_type"
-              :key="dict.value"
-              :label="dict.label"
-              :value="parseInt(dict.value)"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="目标链接" prop="targetType">
-          <el-select v-model="form.targetType" placeholder="请选择目标链接">
+        <el-form-item label="目标类型" prop="targetType">
+          <el-select v-model="form.targetType" placeholder="请选择目标类型">
             <el-option
               v-for="dict in dict.type.banner_target_type"
               :key="dict.value"
               :label="dict.label"
-              :value="parseInt(dict.value)"
+:value="parseInt(dict.value)"
             ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="资源" prop="targetId">
-          <el-input v-model="form.targetId" placeholder="下拉对应资源列表未调试" />
-        </el-form-item>
-        <el-form-item label="是否显示" prop="isShow">
-          <el-radio-group v-model="form.isShow">
-            <el-radio
-              v-for="dict in dict.type.sys_article_yes_no"
+        <el-form-item label="链路方向" prop="type">
+          <el-select v-model="form.type" placeholder="请选择类型">
+            <el-option
+              v-for="dict in dict.type.sys_link_type"
               :key="dict.value"
-              :label="dict.value"
-              :value="parseInt(dict.value)"
-            >{{dict.label}}</el-radio>
-          </el-radio-group>
+              :label="dict.label"
+:value="parseInt(dict.value)"
+            ></el-option>
+          </el-select>
         </el-form-item>
-        <el-form-item label="排序" prop="sort">
-          <el-input-number v-model="form.sort" controls-position="right" :min="0" />
+        <el-form-item label="链接地址" prop="links">
+          <el-input v-model="form.links" placeholder="请输入链接地址" />
         </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" />
@@ -189,11 +157,11 @@
 </template>
 
 <script>
-import { listBanner, getBanner, delBanner, addBanner, updateBanner } from "@/api/system/banner";
+import { listLink, getLink, delLink, addLink, updateLink } from "@/api/system/link";
 
 export default {
-  name: "Banner",
-  dicts: ['banner_target_type', 'banner_type','sys_article_yes_no'],
+  name: "Link",
+  dicts: ['banner_target_type', 'sys_link_type'],
   data() {
     return {
       // 遮罩层
@@ -208,8 +176,8 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // banner列表格数据
-      bannerList: [],
+      // 链接管理表格数据
+      linkList: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -219,7 +187,7 @@ export default {
         pageNum: 1,
         pageSize: 10,
         name: null,
-        type: null,
+        targetType: null,
       },
       // 表单参数
       form: {},
@@ -228,8 +196,8 @@ export default {
         name: [
           { required: true, message: "名称不能为空", trigger: "blur" }
         ],
-        type: [
-          { required: true, message: "类型不能为空", trigger: "change" }
+        targetType: [
+          { required: true, message: "目标类型不能为空", trigger: "change" }
         ],
       }
     };
@@ -238,11 +206,11 @@ export default {
     this.getList();
   },
   methods: {
-    /** 查询banner列表 */
+    /** 查询链接管理列表 */
     getList() {
       this.loading = true;
-      listBanner(this.queryParams).then(response => {
-        this.bannerList = response.rows;
+      listLink(this.queryParams).then(response => {
+        this.linkList = response.rows;
         this.total = response.total;
         this.loading = false;
       });
@@ -257,19 +225,16 @@ export default {
       this.form = {
         id: null,
         name: null,
-        imgId: null,
-        imgUrl: null,
-        type: null,
         targetType: null,
-        targetId: null,
+        type: null,
+        links: null,
         delFlag: null,
         createBy: null,
         createTime: null,
         updateBy: null,
         updateTime: null,
         remark: null,
-        sort: null,
-        isShow: null
+        sort: null
       };
       this.resetForm("form");
     },
@@ -293,16 +258,16 @@ export default {
     handleAdd() {
       this.reset();
       this.open = true;
-      this.title = "添加banner";
+      this.title = "添加链接管理";
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
       const id = row.id || this.ids
-      getBanner(id).then(response => {
+      getLink(id).then(response => {
         this.form = response.data;
         this.open = true;
-        this.title = "修改banner";
+        this.title = "修改链接管理";
       });
     },
     /** 提交按钮 */
@@ -310,13 +275,13 @@ export default {
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.id != null) {
-            updateBanner(this.form).then(response => {
+            updateLink(this.form).then(response => {
               this.$modal.msgSuccess("修改成功");
               this.open = false;
               this.getList();
             });
           } else {
-            addBanner(this.form).then(response => {
+            addLink(this.form).then(response => {
               this.$modal.msgSuccess("新增成功");
               this.open = false;
               this.getList();
@@ -328,8 +293,8 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       const ids = row.id || this.ids;
-      this.$modal.confirm('是否确认删除banner编号为"' + ids + '"的数据项？').then(function() {
-        return delBanner(ids);
+      this.$modal.confirm('是否确认删除链接管理编号为"' + ids + '"的数据项？').then(function() {
+        return delLink(ids);
       }).then(() => {
         this.getList();
         this.$modal.msgSuccess("删除成功");
@@ -337,9 +302,9 @@ export default {
     },
     /** 导出按钮操作 */
     handleExport() {
-      this.download('system/banner/export', {
+      this.download('system/link/export', {
         ...this.queryParams
-      }, `banner_${new Date().getTime()}.xlsx`)
+      }, `link_${new Date().getTime()}.xlsx`)
     }
   }
 };

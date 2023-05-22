@@ -10,16 +10,18 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="类型" prop="type">
-        <el-select v-model="queryParams.type" placeholder="请选择类型" clearable size="small">
+
+      <el-form-item label="发布形式" prop="form">
+        <el-select v-model="queryParams.form" placeholder="请选择发布形式" clearable size="small">
           <el-option
-            v-for="dict in dict.type.sys_article_type"
+            v-for="dict in dict.type.sys_article_from"
             :key="dict.value"
             :label="dict.label"
             :value="dict.value"
           />
         </el-select>
       </el-form-item>
+
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -75,22 +77,63 @@
     <el-table v-loading="loading" :data="articleList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="标题" align="center" prop="title" />
-      <el-table-column label="摘要" align="center" prop="abstract" />
-      <el-table-column label="主图" align="center" prop="images" />
-      <el-table-column label="详情" align="center" prop="content" />
-      <el-table-column label="类型" align="center" prop="type">
+      <el-table-column label="摘要" align="center" prop="abstracts" />
+      <el-table-column label="图片" align="center" prop="imgUrl" >
         <template slot-scope="scope">
-          <dict-tag :options="dict.type.sys_article_type" :value="scope.row.type"/>
+          <el-image :src="scope.row.images" style="width: 100px; height: 60px">
+            <div slot="placeholder" class="image-slot">
+              加载中<span class="dot">...</span>
+            </div>
+          </el-image>
         </template>
       </el-table-column>
-      <el-table-column label="原文链接" align="center" prop="textlink" />
-      <el-table-column label="允许评论 " align="center" prop="isComment">
+      <el-table-column label="所属区域" align="center" prop="region" />
+      <el-table-column label="分类" align="center" prop="classId" />
+<!--      <el-table-column label="详情" align="center" prop="content" />-->
+<!--      <el-table-column label="类型" align="center" prop="types">-->
+<!--        <template slot-scope="scope">-->
+<!--          <dict-tag :options="dict.type.sys_article_type" :value="scope.row.types"/>-->
+<!--        </template>-->
+<!--      </el-table-column>-->
+<!--      <el-table-column label="标签" align="center" prop="label" />-->
+      <el-table-column label="关键字" align="center" prop="keyword" />
+<!--      <el-table-column label="发布形式" align="center"  prop="form">-->
+<!--        <template slot-scope="scope">-->
+<!--          <dict-tag :options="dict.type.sys_article_from" :value="scope.row.form"/>-->
+<!--        </template>-->
+<!--      </el-table-column>-->
+      <el-table-column label="是否置顶" align="center" prop="isTop">
+        <template slot-scope="scope">
+          <dict-tag :options="dict.type.sys_article_yes_no" :value="scope.row.isTop"/>
+        </template>
+      </el-table-column>
+      <el-table-column label="允许评论" align="center" prop="isComment">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.sys_article_yes_no" :value="scope.row.isComment"/>
         </template>
       </el-table-column>
-      <el-table-column label="审核状态" align="center" prop="examine" />
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column label="审核状态" align="center" prop="examine">
+        <template slot-scope="scope">
+          <span v-if="scope.row.examine == 0">
+            <dict-tag :options="dict.type.sys_article_examine" :value="scope.row.examine" style="color: #67C23A"/>
+          </span>
+          <span v-else>
+            <dict-tag :options="dict.type.sys_article_examine" :value="scope.row.examine" style="color: #F56C6C"/>
+          </span>
+        </template>
+      </el-table-column>
+      <el-table-column label="上线状态" align="center" prop="status">
+        <template slot-scope="scope">
+           <span v-if="scope.row.examine == 0 ">
+             <dict-tag :options="dict.type.sys_article_status" :value="scope.row.status"/>
+           </span>
+          <span v-else>
+            无
+          </span>
+        </template>
+      </el-table-column>
+      <el-table-column label="排序" align="center" prop="sort" />
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="170px">
         <template slot-scope="scope">
           <el-button
             size="mini"
@@ -106,6 +149,28 @@
             @click="handleDelete(scope.row)"
             v-hasPermi="['system:article:remove']"
           >删除</el-button>
+          <el-dropdown size="mini" @command="(command) => handleCommand(command, scope.row)" v-hasPermi="['system:user:resetPwd', 'system:user:edit']">
+                <span class="el-dropdown-link">
+                  <i class="el-icon-d-arrow-right el-icon--right"></i>更多
+                </span>
+            <el-dropdown-menu slot="dropdown">
+              <span v-if="scope.row.examine != 0 ">
+                <el-dropdown-item command="approve" icon="el-icon-circle-check">审核</el-dropdown-item>
+              </span>
+              <span v-if="scope.row.examine == 0 ">
+                <el-dropdown-item command="topping" icon="el-icon-key">置顶</el-dropdown-item>
+              </span>
+              <span v-if="scope.row.examine == 0 ">
+                <span v-if="scope.row.status == 0 ">
+                  <el-dropdown-item  command="downward" icon="el-icon-circle-check">下架</el-dropdown-item>
+                </span>
+                <span v-else>
+                  <el-dropdown-item  command="upward" icon="el-icon-circle-check">上架</el-dropdown-item>
+                </span>
+              </span>
+
+            </el-dropdown-menu>
+          </el-dropdown>
         </template>
       </el-table-column>
     </el-table>
@@ -118,62 +183,95 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改文章对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="1200px" append-to-body>
+    <!-- 添加或修改文章管理对话框 -->
+    <el-dialog :title="title" :visible.sync="open" width="60%" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="文章标题" prop="title">
+        <el-form-item label="所属区域" prop="region" >
+          <el-select v-model="form.region" clearable placeholder="请选择区域" label-width="80px">
+            <el-option
+              v-for="item in articleTitleList"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="语言" prop="luaguage" >
+          <el-select v-model="queryParams.luaguage" placeholder="请选择语言" clearable size="small" label-width="80px">
+            <el-option
+              v-for="dict in dict.type.sys_language"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="内容分类" prop="classId" >
+          <treeselect
+            v-model="form.classId"
+            :options="articleClassList"
+            :normalizer="normalizer"
+            placeholder="选择分类" />
+        </el-form-item>
+
+        <el-form-item label="标题" prop="title">
           <el-input v-model="form.title" placeholder="请输入文章标题" />
         </el-form-item>
-        <el-form-item label="文章摘要" prop="abstract" >
-          <el-input v-model="form.abstract"  type="textarea" placeholder="请输入内容" />
+        <el-form-item label="摘要" prop="abstracts">
+          <el-input v-model="form.abstracts"type="textarea" placeholder="请输入摘要" />
         </el-form-item>
-        <el-form-item label="文章封面" prop="images">
-          <el-input v-model="form.images" placeholder="请输入图片链接" />
+        <el-form-item label="主图">
+          <image-upload v-model="form.imgId"/>
         </el-form-item>
-        <el-form-item label="文章详情">
-          <editor v-model="form.content" :min-height="350"/>
+        <el-form-item label="详情">
+          <editor v-model="form.content" :min-height="300"/>
         </el-form-item>
-        <el-form-item label="文章标签" prop="label">
-          <el-input v-model="form.label" placeholder="请输入标签" />
+<!--        <el-form-item label="标签" prop="label">-->
+<!--          <el-input v-model="form.label" placeholder="请输入标签" />-->
+<!--        </el-form-item>-->
+        <el-form-item label="关键字" prop="keyword">
+          <el-input v-model="form.keyword" placeholder="请输入关键字" />
         </el-form-item>
-        <el-form-item label="文章类型">
-          <el-radio-group v-model="form.type">
-            <el-radio
-              v-for="dict in dict.type.sys_article_type"
-              :key="dict.value"
-              :label="parseInt(dict.value)"
-            >{{dict.label}}</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item>
-          <el-input v-model="form.textlink" placeholder="请填写原文链接" />
-          <span><input type="checkbox" aria-hidden="false" class="" value=""></span>
-          <span>原文允许转载或者本次转载已经获得原文作者授权</span>
-          <p style="color: red;margin-top: 0px"> 注意：转载请确认原文允许转载，或者您已经获得原文作者授权。转载文章不能设置为VIP可见。 </p>
-        </el-form-item>
-        申请原创将启用 Creative Commons 版权模板，如果不是原创文章，请选择转载或翻译。 原创文章默认开启打赏
-        注意：翻译请确认原文允许翻译，或者您已经获得原文作者授权翻译。翻译文章请尽量填写原文链接。
-        <el-form-item label="关键字" prop="keywords">
-          <el-input v-model="form.keywords" placeholder="请输入关键字" />
-        </el-form-item>
-        <el-form-item label="发布形式">
-          <el-radio-group v-model="form.form">
-            <el-radio
-              v-for="dict in dict.type.sys_article_from"
-              :key="dict.value"
-              :label="parseInt(dict.value)"
-            >{{dict.label}}</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="文章状态">
-          <el-radio-group v-model="form.status">
-            <el-radio
-              v-for="dict in dict.type.sys_show_hide"
-              :key="dict.value"
-              :label="dict.value"
-            >{{dict.label}}</el-radio>
-          </el-radio-group>
-        </el-form-item>
+<!--        <el-form-item label="类型" prop="types">-->
+<!--          <el-radio-group v-model="form.types">-->
+<!--            <el-radio-->
+<!--              v-for="dict in dict.type.sys_article_type"-->
+<!--              :key="dict.value"-->
+<!--              :label="parseInt(dict.value)"-->
+<!--              >{{dict.label}}</el-radio>-->
+<!--          </el-radio-group>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="原文链接" prop="textlink" >-->
+<!--          <el-input v-model="form.textlink" placeholder="请输入原文链接" />-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="允许转载" prop="grants">-->
+<!--          <el-radio-group v-model="form.grants">-->
+<!--            <el-radio-->
+<!--              v-for="dict in dict.type.sys_article_yes_no"-->
+<!--              :key="dict.value"-->
+<!--              :label="dict.value"-->
+<!--            >{{dict.label}}</el-radio>-->
+<!--          </el-radio-group>-->
+<!--        </el-form-item>-->
+
+<!--        <el-form-item label="发布形式">-->
+<!--          <el-radio-group v-model="form.form">-->
+<!--            <el-radio-->
+<!--              v-for="dict in dict.type.sys_article_from"-->
+<!--              :key="dict.value"-->
+<!--              :label="parseInt(dict.value)"-->
+<!--            >{{dict.label}}</el-radio>-->
+<!--          </el-radio-group>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="文章状态">-->
+<!--          <el-radio-group v-model="form.status">-->
+<!--            <el-radio-->
+<!--              v-for="dict in dict.type.sys_show_hide"-->
+<!--              :key="dict.value"-->
+<!--              :label="parseInt(dict.value)"-->
+<!--            >{{dict.label}}</el-radio>-->
+<!--          </el-radio-group>-->
+<!--        </el-form-item>-->
         <el-form-item label="是否置顶">
           <el-radio-group v-model="form.isTop">
             <el-radio
@@ -183,7 +281,7 @@
             >{{dict.label}}</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="允许评论 ">
+        <el-form-item label="允许评论">
           <el-radio-group v-model="form.isComment">
             <el-radio
               v-for="dict in dict.type.sys_article_yes_no"
@@ -192,10 +290,15 @@
             >{{dict.label}}</el-radio>
           </el-radio-group>
         </el-form-item>
+<!--        <el-form-item label="备注" prop="remark">-->
+<!--          <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" />-->
+<!--        </el-form-item>-->
+        <el-form-item label="排序" prop="sort">
+          <el-input-number v-model="form.sort" controls-position="right" :min="0" />
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="success" @click="submitForm">保存草稿</el-button>
-        <el-button type="primary" @click="submitForm">发布文章</el-button>
+        <el-button type="primary" @click="submitForm">确 定</el-button>
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
@@ -203,13 +306,30 @@
 </template>
 
 <script>
-import { listArticle, getArticle, delArticle, addArticle, updateArticle } from "@/api/system/article";
+import {listArticle, getArticle, delArticle, addArticle, updateArticle, listTree,
+  listCategory,upwards,toppings,downwards} from "@/api/system/article";
+import Treeselect from "@riophae/vue-treeselect";
+import "@riophae/vue-treeselect/dist/vue-treeselect.css";
+import {resetUserPwd} from "@/api/system/user";
 
 export default {
   name: "Article",
-  dicts: ['sys_article_type', 'sys_article_yes_no', 'sys_show_hide', 'sys_article_from'],
+  dicts: ['sys_article_yes_no', 'sys_show_hide', 'sys_article_from',
+    'sys_article_type','sys_article_examine','sys_language','sys_article_status'],
+  components: { Treeselect },
   data() {
     return {
+
+      options1: [{
+        value: '1',
+        label: '新闻中心'
+      }, {
+        value: '2',
+        label: '学佛园地'
+      }, {
+        value: '3',
+        label: '法会预约'
+      }],
       // 遮罩层
       loading: true,
       // 选中数组
@@ -222,25 +342,33 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // 文章列表格数据
+      // 文章管理表格数据
       articleList: [],
+      //区域数据
+      articleTitleList:[],
+      //分类数据
+      articleClassList:[],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
       open: false,
+      // 区域树选项
+      categoryTitleOptions: [],
       // 查询参数
       queryParams: {
         pageNum: 1,
         pageSize: 10,
         title: null,
-        type: null,
-        grant: null,
-        keywords: null,
+        abstracts: null,
+        content: null,
         form: null,
         status: null,
         isTop: null,
-        isComment: null,
         examine: null,
+        sort: null,
+        region: null,
+        classId: null,
+        luaguage: null
       },
       // 表单参数
       form: {},
@@ -249,35 +377,103 @@ export default {
         title: [
           { required: true, message: "文章标题不能为空", trigger: "blur" }
         ],
-        type: [
-          { required: true, message: "类型不能为空", trigger: "blur" }
-        ],
-        grant: [
-          { required: true, message: "允许转载不能为空", trigger: "blur" }
-        ],
-        form: [
-          { required: true, message: "发布形式不能为空", trigger: "blur" }
-        ],
+        // types: [
+        //   { required: true, message: "类型不能为空", trigger: "blur" }
+        // ],
+        // grants: [
+        //   { required: true, message: "原文是否允许转载/翻译不能为空", trigger: "blur" }
+        // ],
+        // form: [
+        //   { required: true, message: "发布形式不能为空", trigger: "blur" }
+        // ],
         isTop: [
-          { required: true, message: "置顶不能为空", trigger: "blur" }
+          { required: true, message: "是否置顶不能为空", trigger: "blur" }
         ],
         isComment: [
-          { required: true, message: "允许评论 不能为空", trigger: "blur" }
+          { required: true, message: "是否允许评论 0-允许 1-不允许不能为空", trigger: "blur" }
         ],
-        examine: [
-          { required: true, message: "审核状态不能为空", trigger: "change" }
-        ],
+        // examine: [
+        //   { required: true, message: "审核状态不能为空", trigger: "change" }
+        // ],
         sort: [
           { required: true, message: "排序不能为空", trigger: "blur" }
-        ]
+        ],
+        // region: [
+        //   { required: true, message: "所属区域不能为空", trigger: "change" }
+        // ],
+        // classId: [
+        //   { required: true, message: "所属分类不能为空", trigger: "change" }
+        // ]
       }
     };
   },
   created() {
     this.getList();
+    this.getListTree();
+    this.getClassTree();
   },
   methods: {
-    /** 查询文章列列表 */
+    getListTree(){
+      this.loading = true;
+      listTree().then(response => {
+        console.log(response.data)
+        this.articleTitleList = response.data;
+        this.loading = false;
+      });
+    },
+    getClassTree(){
+      // this.loading = true;
+      listCategory().then(response => {
+        this.articleClassList = this.handleTree(response.data, "id");
+      });
+    },
+    // 更多操作触发
+    handleCommand(command, row) {
+      switch (command) {
+        case "topping":
+          this.topping(row);
+          break;
+        case "downward":
+          this.downward(row);
+          break;
+        case "upward":
+          this.upward(row);
+          break;
+        default:
+          break;
+      }
+    },
+    /** 置顶按钮操作 */
+    topping(row) {
+      console.log(row.title)
+      this.$modal.confirm('您确定要将"' + row.title + '"置顶 ?').then(function() {
+        return toppings(row.id);
+      }).then(() => {
+        this.getList();
+        this.$modal.msgSuccess("置顶成功");
+      }).catch(() => {});
+    },
+    /** 下架按钮操作 */
+    downward(row) {
+      console.log(row.title)
+      this.$modal.confirm('您确定要将"' + row.title + '"下架 ?').then(function() {
+        return downwards(row.id);
+      }).then(() => {
+        this.getList();
+        this.$modal.msgSuccess("下架成功");
+      }).catch(() => {});
+    },
+    /** 上架按钮操作 */
+    upward(row) {
+      console.log(row.title)
+      this.$modal.confirm('您确定要将"' + row.title + '"上架 ?').then(function() {
+        return upwards(row.id);
+      }).then(() => {
+        this.getList();
+        this.$modal.msgSuccess("上架成功");
+      }).catch(() => {});
+    },
+    /** 查询文章管理列表 */
     getList() {
       this.loading = true;
       listArticle(this.queryParams).then(response => {
@@ -285,6 +481,17 @@ export default {
         this.total = response.total;
         this.loading = false;
       });
+    },
+    /** 转换分类数据结构 */
+    normalizer(node) {
+      if (node.children && !node.children.length) {
+        delete node.children;
+      }
+      return {
+        id: node.id,
+        label: node.name,
+        children: node.children
+      };
     },
     // 取消按钮
     cancel() {
@@ -296,15 +503,15 @@ export default {
       this.form = {
         id: null,
         title: null,
-        abstract: null,
+        abstracts: null,
         imgId: null,
         images: null,
         content: null,
         label: null,
-        type: 0,
+        types: null,
         textlink: null,
-        grant: 0,
-        keywords: null,
+        grants: null,
+        keyword: null,
         form: 0,
         status: "0",
         isTop: 0,
@@ -316,7 +523,10 @@ export default {
         updateBy: null,
         updateTime: null,
         remark: null,
-        sort: null
+        sort: null,
+        region: null,
+        classId: null,
+        luaguage: null
       };
       this.resetForm("form");
     },
@@ -340,7 +550,7 @@ export default {
     handleAdd() {
       this.reset();
       this.open = true;
-      this.title = "发布文章";
+      this.title = "添加文章管理";
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
@@ -349,7 +559,7 @@ export default {
       getArticle(id).then(response => {
         this.form = response.data;
         this.open = true;
-        this.title = "修改文章列";
+        this.title = "修改文章管理";
       });
     },
     /** 提交按钮 */
@@ -375,7 +585,7 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       const ids = row.id || this.ids;
-      this.$modal.confirm('是否确认删除文章列编号为"' + ids + '"的数据项？').then(function() {
+      this.$modal.confirm('是否确认删除文章管理编号为"' + ids + '"的数据项？').then(function() {
         return delArticle(ids);
       }).then(() => {
         this.getList();
@@ -391,8 +601,3 @@ export default {
   }
 };
 </script>
-<style>
-.el-textarea__inner{
-  height: 100px;
-}
-</style>

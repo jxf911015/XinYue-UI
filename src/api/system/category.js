@@ -33,7 +33,14 @@ export function addCategory(data) {
     data: data
   })
 }
-
+// 新增分类
+export function createCategory(data) {
+  return request({
+    url: '/system/category',
+    method: 'post',
+    data: data
+  })
+}
 // 修改分类
 export function updateCategory(data) {
   return request({
@@ -51,10 +58,20 @@ export function delCategory(id) {
   })
 }
 // 删除分类
-export function delCategoryByid(id) {
+export function removeCategory(id) {
+  console.log(id)
   return request({
-    url: '/system/category/removeByid/' + id,
+    url: '/system/category/' + id,
     method: 'delete'
+  })
+}
+// 删除分类
+export function delCategoryByid(id) {
+  console.log(id)
+  return request({
+    url: '/system/category/removeByid/'+id,
+    method: 'delete',
+    id: id
   })
 }
 /**
@@ -101,5 +118,15 @@ export function treeselect() {
     method: 'get'
   })
 }
-
+// 查询分类下拉树结构
+export function getCategoryList(pram) {
+  const data = {
+    name: pram.name,
+  }
+  return request({
+    url: '/system/category/treeselect',
+    method: 'get',
+    params: data
+  })
+}
 

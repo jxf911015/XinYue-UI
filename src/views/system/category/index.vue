@@ -275,7 +275,8 @@ export default {
       //   this.total = response.total;
       //   this.loading = false;
       // });
-    },/** 转换分类数据结构 */
+    },
+    /** 转换分类数据结构 */
     normalizer(node) {
       if (node.children && !node.children.length) {
         delete node.children;

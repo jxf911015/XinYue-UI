@@ -1,12 +1,12 @@
 <template>
   <div class="app-container">
-   <Picture type="pub"></Picture>
+   <Picture type="exhibition"></Picture>
 
   </div>
 </template>
 
 <script>
-import Picture from "@/components/picture/index.vue";
+import Picture from "@/components/uploadPictures/index.vue";
 export default {
   components: { Picture },
   data() {

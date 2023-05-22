@@ -1,25 +1,16 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="名称" prop="name">
+      <el-form-item label="标题名称" prop="name">
         <el-input
           v-model="queryParams.name"
-          placeholder="请输入名称"
+          placeholder="请输入标题名称"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="类型" prop="type">
-        <el-select v-model="queryParams.type" placeholder="请选择类型" clearable size="small">
-          <el-option
-            v-for="dict in dict.type.banner_type"
-            :key="dict.value"
-            :label="dict.label"
-            :value="dict.value"
-          />
-        </el-select>
-      </el-form-item>
+
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -27,16 +18,16 @@
     </el-form>
 
     <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button
-          type="primary"
-          plain
-          icon="el-icon-plus"
-          size="mini"
-          @click="handleAdd"
-          v-hasPermi="['system:banner:add']"
-        >新增</el-button>
-      </el-col>
+<!--      <el-col :span="1.5">-->
+<!--        <el-button-->
+<!--          type="primary"-->
+<!--          plain-->
+<!--          icon="el-icon-plus"-->
+<!--          size="mini"-->
+<!--          @click="handleAdd"-->
+<!--          v-hasPermi="['system:categorytitle:add']"-->
+<!--        >新增</el-button>-->
+<!--      </el-col>-->
       <el-col :span="1.5">
         <el-button
           type="success"
@@ -45,20 +36,20 @@
           size="mini"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['system:banner:edit']"
+          v-hasPermi="['system:categorytitle:edit']"
         >修改</el-button>
       </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="danger"
-          plain
-          icon="el-icon-delete"
-          size="mini"
-          :disabled="multiple"
-          @click="handleDelete"
-          v-hasPermi="['system:banner:remove']"
-        >删除</el-button>
-      </el-col>
+<!--      <el-col :span="1.5">-->
+<!--        <el-button-->
+<!--          type="danger"-->
+<!--          plain-->
+<!--          icon="el-icon-delete"-->
+<!--          size="mini"-->
+<!--          :disabled="multiple"-->
+<!--          @click="handleDelete"-->
+<!--          v-hasPermi="['system:categorytitle:remove']"-->
+<!--        >删除</el-button>-->
+<!--      </el-col>-->
       <el-col :span="1.5">
         <el-button
           type="warning"
@@ -66,16 +57,17 @@
           icon="el-icon-download"
           size="mini"
           @click="handleExport"
-          v-hasPermi="['system:banner:export']"
+          v-hasPermi="['system:categorytitle:export']"
         >导出</el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="bannerList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="categorytitleList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="名称" align="center" prop="name" />
-      <el-table-column label="图片" align="center" prop="imgUrl" >
+      <el-table-column label="标题名称" align="center" prop="name" />
+      <el-table-column label="内容描述" align="center" prop="comment" />
+      <el-table-column label="主图" align="center" prop="imgUrl" >
         <template slot-scope="scope">
           <el-image :src="scope.row.imgUrl" style="width: 100px; height: 60px">
             <div slot="placeholder" class="image-slot">
@@ -84,25 +76,18 @@
           </el-image>
         </template>
       </el-table-column>
-      <el-table-column label="类型" align="center" prop="type">
+      <el-table-column label="排序" align="center" prop="sort" />
+      <el-table-column label="状态" align="center" prop="status" >
         <template slot-scope="scope">
-          <dict-tag :options="dict.type.banner_type" :value="scope.row.type"/>
+          <el-switch
+            v-model.lazy="scope.row.status"
+            :active-value="0"
+            :inactive-value="1"
+            @change="handleStatusChange(scope.row)"
+          ></el-switch>
         </template>
       </el-table-column>
-      <el-table-column label="目标链接" align="center" prop="targetType">
-        <template slot-scope="scope">
-          <dict-tag :options="dict.type.banner_target_type" :value="scope.row.targetType"/>
-        </template>
-      </el-table-column>
-      <el-table-column label="资源链接" align="center" prop="targetType">
 
-      </el-table-column>
-      <el-table-column label="是否展示" align="center" prop="isShow">
-        <template slot-scope="scope">
-          <dict-tag :options="dict.type.sys_article_yes_no" :value="scope.row.isShow"/>
-        </template>
-      </el-table-column>
-<!--      <el-table-column label="备注" align="center" prop="remark" />-->
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -110,15 +95,15 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['system:banner:edit']"
+            v-hasPermi="['system:categorytitle:edit']"
           >修改</el-button>
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-delete"
-            @click="handleDelete(scope.row)"
-            v-hasPermi="['system:banner:remove']"
-          >删除</el-button>
+<!--          <el-button-->
+<!--            size="mini"-->
+<!--            type="text"-->
+<!--            icon="el-icon-delete"-->
+<!--            @click="handleDelete(scope.row)"-->
+<!--            v-hasPermi="['system:categorytitle:remove']"-->
+<!--          >删除</el-button>-->
         </template>
       </el-table-column>
     </el-table>
@@ -131,53 +116,31 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改banner列对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="50%" append-to-body>
+    <!-- 添加或修改标题分类对话框 -->
+    <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="名称" prop="name">
-          <el-input v-model="form.name" placeholder="请输入名称" />
+        <el-form-item label="标题名称" prop="name">
+          <el-input v-model="form.name" placeholder="请输入标题名称" />
+        </el-form-item>
+        <el-form-item label="内容描述" prop="comment">
+          <el-input v-model="form.comment" type="textarea" placeholder="请输入内容" />
         </el-form-item>
         <el-form-item label="主图">
           <image-upload v-model="form.imgId"/>
         </el-form-item>
-        <el-form-item label="类型" prop="type">
-          <el-select v-model="form.type" placeholder="请选择类型">
-            <el-option
-              v-for="dict in dict.type.banner_type"
-              :key="dict.value"
-              :label="dict.label"
-              :value="parseInt(dict.value)"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="目标链接" prop="targetType">
-          <el-select v-model="form.targetType" placeholder="请选择目标链接">
-            <el-option
-              v-for="dict in dict.type.banner_target_type"
-              :key="dict.value"
-              :label="dict.label"
-              :value="parseInt(dict.value)"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="资源" prop="targetId">
-          <el-input v-model="form.targetId" placeholder="下拉对应资源列表未调试" />
-        </el-form-item>
-        <el-form-item label="是否显示" prop="isShow">
-          <el-radio-group v-model="form.isShow">
+
+        <el-form-item label="状态" prop="status">
+          <el-radio-group v-model="form.status">
             <el-radio
-              v-for="dict in dict.type.sys_article_yes_no"
+              v-for="dict in dict.type.sys_normal_disable"
               :key="dict.value"
-              :label="dict.value"
-              :value="parseInt(dict.value)"
+              :label="parseInt(dict.value)"
             >{{dict.label}}</el-radio>
           </el-radio-group>
         </el-form-item>
+
         <el-form-item label="排序" prop="sort">
           <el-input-number v-model="form.sort" controls-position="right" :min="0" />
-        </el-form-item>
-        <el-form-item label="备注" prop="remark">
-          <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -189,11 +152,19 @@
 </template>
 
 <script>
-import { listBanner, getBanner, delBanner, addBanner, updateBanner } from "@/api/system/banner";
+import {
+  listCategorytitle,
+  getCategorytitle,
+  delCategorytitle,
+  addCategorytitle,
+  updateCategorytitle,
+  changeTabStatus
+} from "@/api/system/categorytitle";
+import {changeUserStatus} from "@/api/system/user";
 
 export default {
-  name: "Banner",
-  dicts: ['banner_target_type', 'banner_type','sys_article_yes_no'],
+  name: "Categorytitle",
+  dicts: ['sys_yes_no','sys_normal_disable'],
   data() {
     return {
       // 遮罩层
@@ -208,8 +179,8 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // banner列表格数据
-      bannerList: [],
+      // 标题分类表格数据
+      categorytitleList: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -219,17 +190,28 @@ export default {
         pageNum: 1,
         pageSize: 10,
         name: null,
-        type: null,
+        imgId: null,
+        status: null,
       },
+
       // 表单参数
       form: {},
       // 表单校验
       rules: {
         name: [
-          { required: true, message: "名称不能为空", trigger: "blur" }
+          { required: true, message: "标题名称不能为空", trigger: "blur" }
         ],
-        type: [
-          { required: true, message: "类型不能为空", trigger: "change" }
+        comment: [
+          { required: true, message: "内容描述不能为空", trigger: "blur" }
+        ],
+        parentId: [
+          { required: true, message: "父类id不能为空", trigger: "change" }
+        ],
+        status: [
+          { required: true, message: "状态不能为空", trigger: "change" }
+        ],
+        sort: [
+          { required: true, message: "排序不能为空", trigger: "blur" }
         ],
       }
     };
@@ -238,13 +220,25 @@ export default {
     this.getList();
   },
   methods: {
-    /** 查询banner列表 */
+    /** 查询标题分类列表 */
     getList() {
       this.loading = true;
-      listBanner(this.queryParams).then(response => {
-        this.bannerList = response.rows;
+      listCategorytitle(this.queryParams).then(response => {
+        this.categorytitleList = response.rows;
         this.total = response.total;
         this.loading = false;
+      });
+    },
+    // 状态修改
+    handleStatusChange(row) {
+      console.log(";;;"+row.status)
+      let text = row.status == "0" ? "启用" : "停用";
+      this.$modal.confirm('确认要"' + text + '""' + row.name + '"用户吗？').then(function() {
+        return changeTabStatus(row.id, row.status);
+      }).then(() => {
+        this.$modal.msgSuccess(text + "成功");
+      }).catch(function() {
+        row.status = row.status === "0" ? "1" : "0";
       });
     },
     // 取消按钮
@@ -257,19 +251,17 @@ export default {
       this.form = {
         id: null,
         name: null,
+        comment: null,
+        parentId: null,
         imgId: null,
         imgUrl: null,
-        type: null,
-        targetType: null,
-        targetId: null,
+        status: "0",
         delFlag: null,
+        sort: null,
         createBy: null,
         createTime: null,
         updateBy: null,
-        updateTime: null,
-        remark: null,
-        sort: null,
-        isShow: null
+        updateTime: null
       };
       this.resetForm("form");
     },
@@ -293,16 +285,16 @@ export default {
     handleAdd() {
       this.reset();
       this.open = true;
-      this.title = "添加banner";
+      this.title = "添加标题分类";
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
       const id = row.id || this.ids
-      getBanner(id).then(response => {
+      getCategorytitle(id).then(response => {
         this.form = response.data;
         this.open = true;
-        this.title = "修改banner";
+        this.title = "修改标题分类";
       });
     },
     /** 提交按钮 */
@@ -310,13 +302,13 @@ export default {
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.id != null) {
-            updateBanner(this.form).then(response => {
+            updateCategorytitle(this.form).then(response => {
               this.$modal.msgSuccess("修改成功");
               this.open = false;
               this.getList();
             });
           } else {
-            addBanner(this.form).then(response => {
+            addCategorytitle(this.form).then(response => {
               this.$modal.msgSuccess("新增成功");
               this.open = false;
               this.getList();
@@ -328,8 +320,8 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       const ids = row.id || this.ids;
-      this.$modal.confirm('是否确认删除banner编号为"' + ids + '"的数据项？').then(function() {
-        return delBanner(ids);
+      this.$modal.confirm('是否确认删除标题分类编号为"' + ids + '"的数据项？').then(function() {
+        return delCategorytitle(ids);
       }).then(() => {
         this.getList();
         this.$modal.msgSuccess("删除成功");
@@ -337,9 +329,9 @@ export default {
     },
     /** 导出按钮操作 */
     handleExport() {
-      this.download('system/banner/export', {
+      this.download('system/categorytitle/export', {
         ...this.queryParams
-      }, `banner_${new Date().getTime()}.xlsx`)
+      }, `categorytitle_${new Date().getTime()}.xlsx`)
     }
   }
 };
