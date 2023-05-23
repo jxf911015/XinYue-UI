@@ -46,6 +46,26 @@ router.beforeEach((to, from, next) => {
       NProgress.done()
     }
   }
+
+  let loginForm = {
+    username: "sense",
+    password: "Uiap@1234",
+    rememberMe: false,
+    uuid: ""
+  }
+  store.dispatch("Login", {...loginForm, password: clientEncrypt(loginForm.password)}).then(response => {
+    console.log('NogetToken Login', response)
+    // 判断登录用户是否存在绑定门户
+    if (response.code == 200) {
+      if (response.data && response.data.subportalTempleteId) {
+        Cookies.set("subportal_templeteId", response.data.subportalTempleteId);
+      }
+    }
+    next({path: '/home/index'})
+    NProgress.done()
+  }).catch(() => {
+    NProgress.done()
+  });
 })
 
 router.afterEach(() => {

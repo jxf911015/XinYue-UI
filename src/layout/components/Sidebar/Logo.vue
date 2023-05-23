@@ -35,7 +35,7 @@ export default {
   },
   data() {
     return {
-      title: '欣悦管理系统',
+      title: '药明生物',
       logo: logoImg
     }
   }

@@ -66,3 +66,44 @@ export function delDept(deptId) {
     method: 'delete'
   })
 }
+
+
+
+// 新增部门
+export function add(data) {
+  return request({
+    url: '/system/dept',
+    method: 'post',
+    data: data
+  })
+}
+//del
+export function del(id) {
+  return request({
+    url: '/system/dept/' + id,
+    method: 'delete'
+  })
+}
+//get
+export function get(id) {
+  return request({
+    url: '/system/dept/' + id,
+    method: 'get'
+  })
+}
+//list
+export function list(query) {
+  return request({
+    url: '/system/dept/list',
+    method: 'get',
+    params: query
+  })
+}
+//update
+export function update(data) {
+  return request({
+    url: '/system/dept',
+    method: 'put',
+    data: data
+  })
+}

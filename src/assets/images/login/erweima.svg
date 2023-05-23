@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="46px" height="47px" viewBox="0 0 46 47" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 49.3 (51167) - http://www.bohemiancoding.com/sketch -->
+    <title>erweima</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="登录1" transform="translate(-1552.000000, -379.000000)">
+            <g id="Group-8" transform="translate(1106.000000, 370.000000)">
+                <g id="erweima" transform="translate(436.000000, 0.000000)">
+                    <g id="Group-4" transform="translate(10.000000, 9.000000)">
+                        <rect id="Rectangle-7" stroke="#9B9B9B" stroke-width="3" x="31.5" y="1.5" width="13" height="13"></rect>
+                        <rect id="Rectangle-8" fill="#9B9B9B" x="35" y="6" width="5" height="5"></rect>
+                        <path d="M35,36 L40,36 L40,41 L35,36 Z" id="Combined-Shape" fill="#9B9B9B"></path>
+                        <path d="M2.92142834,3.94885108 L0.00124738597,1.011372 L0,1 L2.92142834,1 L2.92142834,3.94885108 Z M3.65766152,4.68944544 L6.80216876,4.68944544 L6.80216876,1.14359848 L14.0831534,1.14359848 L14.0831534,4.44429027 L17,4.44429027 L17,17 L15.8957221,17 L12.7765587,13.8623597 L12.7765587,13.3482589 L14.0831534,13.3482589 L14.0831534,9 L10.3716298,9 L10.3716298,11.4431849 L3.65766152,4.68944544 Z" id="Combined-Shape" fill="#9B9B9B"></path>
+                        <polygon id="Path-4" fill="#9B9B9B" points="19 1 22.3280357 1 22.3280357 4.56354515 26 4.56354515 26 7.641809 22.5 7.641809 22.3280357 11 19 11"></polygon>
+                        <path d="M25.9782748,28 L22.2661565,24.3034014 L22.2661565,21.101263 L19,20.7586638 L19,15.6850844 L22.05623,15.6850844 L22.05623,12 L25.9782748,12 L25.9782748,21.101263 L31,21.101263 L31,24.2935633 L25.9782748,24.2935633 L25.9782748,28 Z" id="Combined-Shape" fill="#9B9B9B"></path>
+                        <polygon id="Path-6" fill="#9B9B9B" points="31 23.4083264 34.4628571 23.4083264 34.4628571 20 41 20 41 23.4083264 37.8078195 23.4083264 37.8078195 27 31 27"></polygon>
+                        <rect id="Rectangle-11" fill="#9B9B9B" x="42" y="23" width="4" height="4"></rect>
+                        <polygon id="Combined-Shape" fill="#9B9B9B" points="46 31 46 47 42.9709214 43.988237 42.9709214 34 32.9960005 34 30 31"></polygon>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
