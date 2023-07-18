@@ -174,10 +174,10 @@ export default {
       // 如果上传成功
       if (res.code == 200) {
         // 获取光标所在位置
-        console.log("富文本上传："+res)
+        console.log("富文本上传："+res.url)
         let length = quill.getSelection().index;
         // 插入图片  res.url为服务器返回的图片地址
-        quill.insertEmbed(length, "image", process.env.VUE_APP_BASE_API + res.fileName);
+        quill.insertEmbed(length, "image", res.url);
         // 调整光标到最后
         quill.setSelection(length + 1);
       } else {

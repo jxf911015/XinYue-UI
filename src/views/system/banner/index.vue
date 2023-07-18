@@ -75,7 +75,7 @@
     <el-table v-loading="loading" :data="bannerList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="名称" align="center" prop="name" />
-      <el-table-column label="图片" align="center" prop="imgUrl" >
+      <el-table-column label="图文封面" align="center" prop="imgUrl" >
         <template slot-scope="scope">
           <el-image :src="scope.row.imgUrl" style="width: 100px; height: 60px">
             <div slot="placeholder" class="image-slot">
@@ -137,8 +137,8 @@
         <el-form-item label="名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入名称" />
         </el-form-item>
-        <el-form-item label="主图">
-          <image-upload v-model="form.imgId"/>
+        <el-form-item label="图文封面">
+          <image-upload v-model="form.imgUrl" limit="2"/>
         </el-form-item>
         <el-form-item label="类型" prop="type">
           <el-select v-model="form.type" placeholder="请选择类型">

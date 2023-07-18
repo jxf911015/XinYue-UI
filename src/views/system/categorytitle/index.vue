@@ -125,10 +125,21 @@
         <el-form-item label="内容描述" prop="comment">
           <el-input v-model="form.comment" type="textarea" placeholder="请输入内容" />
         </el-form-item>
-        <el-form-item label="主图">
-          <image-upload v-model="form.imgId"/>
+        <el-form-item label="图文封面">
+          <image-upload v-model="form.imgUrl" limit="2" />
         </el-form-item>
 
+<!--        <el-form-item label="图文封面" prop="imgId" >-->
+<!--          <div class="upLoadPicBox" @click="modalPicTap('1')">-->
+<!--            <div v-if="form.imgUrl" class="pictrue" >-->
+<!--              <img width="120px" height="80px" :src="form.imgUrl">-->
+<!--            </div>-->
+<!--            <div v-else class="upLoad">-->
+<!--              <image-upload v-model="form.imgId" limit="1"/>-->
+<!--&lt;!&ndash;              <i  class="el-icon-camera cameraIconfont" style="font-size: 35px; font-weight: 500"/>&ndash;&gt;-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </el-form-item>-->
         <el-form-item label="状态" prop="status">
           <el-radio-group v-model="form.status">
             <el-radio
@@ -220,6 +231,13 @@ export default {
     this.getList();
   },
   methods: {
+    // 点击
+    modalPicTap(tit) {
+      const _this = this
+      // this.$modalUpload(function(img) {
+      //   _this.pram.imageInput = img[0].sattDir
+      // }, tit, 'content')
+    },
     /** 查询标题分类列表 */
     getList() {
       this.loading = true;

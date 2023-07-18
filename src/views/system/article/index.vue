@@ -78,7 +78,7 @@
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="标题" align="center" prop="title" />
       <el-table-column label="摘要" align="center" prop="abstracts" />
-      <el-table-column label="图片" align="center" prop="imgUrl" >
+      <el-table-column label="图文封面" align="center" prop="imgUrl" >
         <template slot-scope="scope">
           <el-image :src="scope.row.images" style="width: 100px; height: 60px">
             <div slot="placeholder" class="image-slot">
@@ -192,21 +192,36 @@
               v-for="item in articleTitleList"
               :key="item.id"
               :label="item.name"
-              :value="item.id">
+              :value="item.id"
+            onclick="this.resetClinck()">
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="语言" prop="luaguage" >
-          <el-select v-model="queryParams.luaguage" placeholder="请选择语言" clearable size="small" label-width="80px">
+
+        <el-form-item label="风格" prop="contentStyle" v-if=" form.region != 8">
+          <el-select v-model="queryParams.contentStyle" placeholder="请选择风格" clearable size="small">
             <el-option
-              v-for="dict in dict.type.sys_language"
+              v-for="dict in dict.type.sys_style"
               :key="dict.value"
               :label="dict.label"
               :value="dict.value"
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="内容分类" prop="classId" >
+        <el-form-item label="内容语言" prop="luaguage"
+                      v-if="queryParams.contentStyle == 4"
+        >
+          <el-select v-model="queryParams.luaguage" placeholder="请选择内容语言" clearable size="small" label-width="80px">
+            <el-option
+              v-for="dict in dict.type.sys_language"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="分类" prop="classId" >
           <treeselect
             v-model="form.classId"
             :options="articleClassList"
@@ -214,36 +229,51 @@
             placeholder="选择分类" />
         </el-form-item>
 
-        <el-form-item label="标题" prop="title">
-          <el-input v-model="form.title" placeholder="请输入文章标题" />
+        <el-form-item label="内容名称" prop="title">
+          <el-input v-model="form.title" placeholder="请输入内容名称" />
         </el-form-item>
-        <el-form-item label="摘要" prop="abstracts">
-          <el-input v-model="form.abstracts"type="textarea" placeholder="请输入摘要" />
+        <el-form-item label="内容摘要" prop="abstracts"
+          v-if="queryParams.contentStyle == 4 "
+        >
+          <el-input v-model="form.abstracts"type="textarea" placeholder="请输入内容摘要" />
         </el-form-item>
-        <el-form-item label="主图">
-          <image-upload v-model="form.imgId"/>
+        <el-form-item label="图文封面">
+          <image-upload v-model="form.images" />
         </el-form-item>
-        <el-form-item label="详情">
+        <el-form-item label="文件视频"
+                      v-if="queryParams.contentStyle != 4
+                      & queryParams.contentStyle != 1
+                      & form.region != 8
+        ">
+          <image-upload v-model="form.images" />
+        </el-form-item>
+        <el-form-item label="详情"
+          v-if="queryParams.contentStyle == 4 & form.region == 8"
+        >
           <editor v-model="form.content" :min-height="300"/>
         </el-form-item>
 <!--        <el-form-item label="标签" prop="label">-->
 <!--          <el-input v-model="form.label" placeholder="请输入标签" />-->
 <!--        </el-form-item>-->
-        <el-form-item label="关键字" prop="keyword">
+        <el-form-item label="关键字" prop="keyword"
+           v-if="queryParams.contentStyle == 4 & form.region != 8"
+        >
           <el-input v-model="form.keyword" placeholder="请输入关键字" />
         </el-form-item>
-<!--        <el-form-item label="类型" prop="types">-->
-<!--          <el-radio-group v-model="form.types">-->
-<!--            <el-radio-->
-<!--              v-for="dict in dict.type.sys_article_type"-->
-<!--              :key="dict.value"-->
-<!--              :label="parseInt(dict.value)"-->
-<!--              >{{dict.label}}</el-radio>-->
-<!--          </el-radio-group>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="原文链接" prop="textlink" >-->
-<!--          <el-input v-model="form.textlink" placeholder="请输入原文链接" />-->
-<!--        </el-form-item>-->
+        <el-form-item label="类型" prop="types"
+           v-if="queryParams.contentStyle == 4 & form.region != 8"
+        >
+          <el-radio-group v-model="form.types">
+            <el-radio
+              v-for="dict in dict.type.sys_article_type"
+              :key="dict.value"
+              :label="parseInt(dict.value)"
+              >{{dict.label}}</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="原文链接" prop="textlink" v-if="form.types == 1 & form.region != 8">
+          <el-input v-model="form.textlink" placeholder="请输入原文链接" />
+        </el-form-item>
 <!--        <el-form-item label="允许转载" prop="grants">-->
 <!--          <el-radio-group v-model="form.grants">-->
 <!--            <el-radio-->
@@ -272,7 +302,9 @@
 <!--            >{{dict.label}}</el-radio>-->
 <!--          </el-radio-group>-->
 <!--        </el-form-item>-->
-        <el-form-item label="是否置顶">
+        <el-form-item label="是否置顶"
+           v-if="queryParams.contentStyle == 4 & form.region != 8"
+        >
           <el-radio-group v-model="form.isTop">
             <el-radio
               v-for="dict in dict.type.sys_article_yes_no"
@@ -281,7 +313,9 @@
             >{{dict.label}}</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="允许评论">
+        <el-form-item label="允许评论"
+          v-if="queryParams.contentStyle == 4 & form.region != 8"
+        >
           <el-radio-group v-model="form.isComment">
             <el-radio
               v-for="dict in dict.type.sys_article_yes_no"
@@ -293,7 +327,8 @@
 <!--        <el-form-item label="备注" prop="remark">-->
 <!--          <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" />-->
 <!--        </el-form-item>-->
-        <el-form-item label="排序" prop="sort">
+        <el-form-item label="排序" prop="sort"
+                      v-if="form.region != 8">
           <el-input-number v-model="form.sort" controls-position="right" :min="0" />
         </el-form-item>
       </el-form>
@@ -315,7 +350,7 @@ import {resetUserPwd} from "@/api/system/user";
 export default {
   name: "Article",
   dicts: ['sys_article_yes_no', 'sys_show_hide', 'sys_article_from',
-    'sys_article_type','sys_article_examine','sys_language','sys_article_status'],
+    'sys_article_type','sys_article_examine','sys_language','sys_article_status','sys_style'],
   components: { Treeselect },
   data() {
     return {
@@ -368,7 +403,8 @@ export default {
         sort: null,
         region: null,
         classId: null,
-        luaguage: null
+        luaguage: null,
+        contentStyle: null
       },
       // 表单参数
       form: {},
@@ -498,6 +534,11 @@ export default {
       this.open = false;
       this.reset();
     },
+    resetClinck(){
+      this.form = {
+        contentStyle: null
+      }
+    },
     // 表单重置
     reset() {
       this.form = {
@@ -526,7 +567,8 @@ export default {
         sort: null,
         region: null,
         classId: null,
-        luaguage: null
+        luaguage: null,
+        contentStyle: null
       };
       this.resetForm("form");
     },
