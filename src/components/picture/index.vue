@@ -99,7 +99,7 @@
 
 
         <pagination
-          :page-sizes="[24]"
+          :page-sizes="[12]"
           v-show="total>0"
           :total="total"
           :page.sync="queryParams.pageNum"

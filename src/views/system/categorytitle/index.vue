@@ -127,6 +127,7 @@
         </el-form-item>
         <el-form-item label="图文封面">
           <image-upload v-model="form.imgUrl" limit="2" />
+          <el-button @click="openPModal">选择</el-button>
         </el-form-item>
 
 <!--        <el-form-item label="图文封面" prop="imgId" >-->
@@ -159,6 +160,7 @@
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
+    <indexModal ref="indexModal" @handelSelect="handelSelect"/>
   </div>
 </template>
 
@@ -172,10 +174,13 @@ import {
   changeTabStatus
 } from "@/api/system/categorytitle";
 import {changeUserStatus} from "@/api/system/user";
-
+import indexModal from '@/components/picture/indexModal.vue'
 export default {
   name: "Categorytitle",
   dicts: ['sys_yes_no','sys_normal_disable'],
+  components: {
+    indexModal
+  },
   data() {
     return {
       // 遮罩层
@@ -231,6 +236,12 @@ export default {
     this.getList();
   },
   methods: {
+    openPModal() {
+      this.$refs.indexModal.show()
+    },
+    handelSelect(val) {
+      console.log('select', val)
+    },
     // 点击
     modalPicTap(tit) {
       const _this = this

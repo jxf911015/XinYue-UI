@@ -139,6 +139,7 @@
         </el-form-item>
         <el-form-item label="图文封面">
           <image-upload v-model="form.imgUrl" limit="2"/>
+          <el-button @click="openPModal">选择</el-button>
         </el-form-item>
         <el-form-item label="类型" prop="type">
           <el-select v-model="form.type" placeholder="请选择类型">
@@ -185,14 +186,18 @@
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
+    <pmodal ref="pmodal"/>
   </div>
 </template>
 
 <script>
 import { listBanner, getBanner, delBanner, addBanner, updateBanner } from "@/api/system/banner";
-
+import pmodal from '@/components/picture/indexModal.vue'
 export default {
   name: "Banner",
+  components: {
+    pmodal
+  },
   dicts: ['banner_target_type', 'banner_type','sys_article_yes_no'],
   data() {
     return {
@@ -238,6 +243,9 @@ export default {
     this.getList();
   },
   methods: {
+    openPModal() {
+      this.$refs.pmodal.show()
+    },
     /** 查询banner列表 */
     getList() {
       this.loading = true;
